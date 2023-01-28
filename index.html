@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta
+      name="viewport"
+      content="width=device-width, maximum-scale=0.9, user-scalable=0"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <title>Sketch Pad</title>
+  </head>
+  <body>
+    <div id="container">
+      <h1>Sketch Pad</h1>
+      <div>
+        <input type="text" name="" id="student" placeholder="type your name" />
+        <span id="instruction"></span>
+        <button id="advBtn" onclick="start()">Start</button>
+      </div>
+      <br />
+      <div id="pad_container" style="visibility: hidden"></div>
+    </div>
+    
+    <script src="./pad.js"></script>
+    <script src="./draw.js"></script>
+    <script>
+      let index = 0;
+
+      const labels = [
+        "car",
+        "fish",
+        "house",
+        "tree",
+        "bicycle",
+        "guitar",
+        "pencil",
+        "clock",
+        "cat",
+      ];
+
+      const data = {
+        student: null,
+        session: new Date().getTime(),
+        drawings: {},
+      };
+
+      const sketchPad = new SketchPad(pad_container);
+
+      function start() {
+        if (student.value == "") {
+          alert("Please write your name");
+          return;
+        }
+        data.student = student.value;
+        student.style.display = "none";
+        pad_container.style.visibility = "visible";
+
+        const label = labels[index];
+        instruction.innerHTML = "Please draw a " + label;
+        advBtn.innerHTML = "Next";
+        advBtn.onclick = next;
+      }
+
+      function next() {
+        if (sketchPad.paths.length == 0) {
+          alert("draw something first");
+          return;
+        }
+        const label = labels[index];
+        data.drawings[label] = sketchPad.paths;
+        sketchPad.reset();
+
+        index++;
+        if (index < labels.length) {
+          const nextLabel = labels[index];
+          instruction.innerHTML = "Please draw a " + nextLabel;
+        } else {
+          pad_container.style.visibility = "hidden";
+          instruction.innerHTML = "Thank you!";
+          advBtn.innerHTML = "Save";
+          advBtn.onclick = save;
+        }
+      }
+
+      function save() {
+        advBtn.style.display = "none";
+        instruction.innerHTML = "Take your download";
+
+        const element = document.createElement("a");
+        element.setAttribute(
+          "href",
+          "data:text/plain;charset=utf-8," +
+            encodeURIComponent(JSON.stringify(data))
+        );
+
+        const fileName = data.session + ".json";
+        element.setAttribute("download", fileName);
+
+        element.style.display = "none";
+        document.body.appendChild(element);
+        element.click();
+        document.body.removeChild(element);
+      }
+    </script>
+  </body>
+</html>
